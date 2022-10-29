@@ -9,14 +9,17 @@ NUM_QUEUE_ITEMS = 250
 
 
 class DB():
-    def __init__(self, dbpath=DEFAULT_PATH):
-        self.cnec = sqlite3.connect(
-            dbpath, timeout=15, check_same_thread=False)
+    def __init__(self):
+        self.dbpath = DEFAULT_PATH
         self.df = pd.DataFrame(
             columns=['Timestamp', 'O', 'H', 'L', 'C', 'V', 'macd', 'stochrsi', 'adx'])
-        self.df.to_sql("BTCUSD", self.cnec, if_exists='replace')
+
+    def connect(self):
+        self.cnec = sqlite3.connect(
+            self.dbpath, timeout=15, check_same_thread=False)
 
     def add_db_entry(self, entries):
+        self.connect()
         data = entries.get(True)
         old_df = pd.read_sql(
             'SELECT Timestamp,O,H,L,C,V FROM BTCUSD', self.cnec)
@@ -34,10 +37,18 @@ class DB():
         new_df["adx"] = ta.ADX(new_df['H'], new_df['L'],
                                new_df['C'], timeperiod=14)
         new_df.to_sql('BTCUSD', self.cnec, if_exists='replace')
+        self.closed()
+
+    def closed(self):
+        self.cnec.close()
 
     def get_data(self):
+        self.connect()
         df = pd.read_sql(
             'SELECT * FROM BTCUSD ORDER BY Timestamp DESC LIMIT 1', self.cnec)
+        print(df.to_json)
         if df.empty:
+            self.closed()
             return {"empty": "empty"}
+        self.closed()
         return df.to_json
