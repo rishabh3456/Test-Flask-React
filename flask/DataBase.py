@@ -13,10 +13,17 @@ class DB():
         self.dbpath = DEFAULT_PATH
         self.df = pd.DataFrame(
             columns=['Timestamp', 'O', 'H', 'L', 'C', 'V', 'macd', 'stochrsi', 'adx'])
+        self.cnec = sqlite3.connect(
+            self.dbpath, timeout=15, check_same_thread=False)
+        self.df.to_sql("BTCUSD", self.cnec, if_exists='replace')
+        self.cnec.close()
 
     def connect(self):
         self.cnec = sqlite3.connect(
             self.dbpath, timeout=15, check_same_thread=False)
+
+    def closed(self):
+        self.cnec.close()
 
     def add_db_entry(self, entries):
         self.connect()
@@ -39,14 +46,10 @@ class DB():
         new_df.to_sql('BTCUSD', self.cnec, if_exists='replace')
         self.closed()
 
-    def closed(self):
-        self.cnec.close()
-
     def get_data(self):
         self.connect()
         df = pd.read_sql(
             'SELECT * FROM BTCUSD ORDER BY Timestamp DESC LIMIT 1', self.cnec)
-        print(df.to_json)
         if df.empty:
             self.closed()
             return {"empty": "empty"}

@@ -15,6 +15,7 @@ def mindata():
 
 
 def inf_loop():
+    print("run")
     try:
         a.run()
     except:
@@ -22,7 +23,8 @@ def inf_loop():
 
 
 if __name__ == "__main__":
+    print("run")
     p = Process(target=inf_loop)
     p.start()
-    app.run(debug=True, use_reloader=False)
+    app.run(debug=True)
     p.join()
