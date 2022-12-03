@@ -50,8 +50,7 @@ class DB():
         self.connect()
         df = pd.read_sql(
             'SELECT * FROM BTCUSD ORDER BY Timestamp DESC LIMIT 1', self.cnec)
-        if df.empty:
-            self.closed()
-            return {"empty": "empty"}
         self.closed()
-        return df.to_json
+        if df.empty:
+            return {"empty": "empty"}
+        return df.to_json()

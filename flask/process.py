@@ -1,44 +1,33 @@
 import websocket
 from DataBase import DB
 from functools import partial
-import multiprocessing
+import queue
 import threading
-import os
 import time
 import json
+import pandas as pd
 
 
 class adder():
     def __init__(self):
-        self.entries = multiprocessing.Queue()
+        self.prev_ts = 0
+        self.entries = queue.Queue()
         self.database = DB()
         self.socket = "wss://stream.binance.com:9443/ws/btcusdt@kline_1m"
 
-    def on_message(self, websocket, message):
-        print("msg")
+    def on_message(self, websocket, message, entries):
         message_dict = json.loads(message)
         candle_closed = message_dict['k']['x']
-        if candle_closed:
-            print(message_dict['k'])
+        if candle_closed and message_dict['k']['T'] != self.prev_ts:
+            self.prev_ts = message_dict['k']['T']
             self.entries.put(message_dict['k'])
             self.database.add_db_entry(self.entries)
-
-    def on_open(self, ws):
-        print('opened connection')
-        print("-----------------------")
-
-    def on_close(self, ws):
-        print('closed connection')
-        print("-----------------------")
 
     def run(self):
         while True:
             try:
-                print("run")
                 self.ws = websocket.WebSocketApp(
-                    self.socket, on_open=self.on_open(), on_close=self.on_close())
-                self.ws.on_message = partial(
-                    self.on_message(),)
+                    self.socket, on_message=partial(self.on_message, entries=self.entries))
                 self.wst = threading.Thread(target=self.ws.run_forever)
                 self.wst.daemon = True
                 self.wst.start()
@@ -48,8 +37,6 @@ class adder():
             except Exception as e:
                 print("ERROR: {}".format(e))
                 break
-        self.entries.close()
-        self.entries.join_thread()
         self.ws.close()
         self.database.closed()
 
