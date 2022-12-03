@@ -5,7 +5,6 @@ import queue
 import threading
 import time
 import json
-import pandas as pd
 
 
 class adder():
@@ -13,7 +12,7 @@ class adder():
         self.prev_ts = 0
         self.entries = queue.Queue()
         self.database = DB()
-        self.socket = "wss://stream.binance.com:9443/ws/btcusdt@kline_1m"
+        self.socket = "wss://stream.binance.us:9443/ws/btcusdt@kline_1m"
 
     def on_message(self, websocket, message, entries):
         message_dict = json.loads(message)
@@ -31,7 +30,7 @@ class adder():
                 self.wst = threading.Thread(target=self.ws.run_forever)
                 self.wst.daemon = True
                 self.wst.start()
-                time.sleep(600)
+                time.sleep(60)
                 self.ws.keep_running = False
                 self.wst.stop = True
             except Exception as e:

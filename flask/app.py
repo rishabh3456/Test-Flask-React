@@ -1,6 +1,5 @@
 from flask import Flask
-from DataBase import DB
-from multiprocessing import Process, Value
+from multiprocessing import Process
 from process import adder
 
 
