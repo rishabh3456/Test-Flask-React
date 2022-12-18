@@ -30,7 +30,7 @@ class adder():
                 self.wst = threading.Thread(target=self.ws.run_forever)
                 self.wst.daemon = True
                 self.wst.start()
-                time.sleep(60)
+                time.sleep(600)
                 self.ws.keep_running = False
                 self.wst.stop = True
             except Exception as e:

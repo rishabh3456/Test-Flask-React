@@ -12,7 +12,7 @@ class DB():
     def __init__(self):
         self.dbpath = DEFAULT_PATH
         self.df = pd.DataFrame(
-            columns=['Timestamp', 'O', 'H', 'L', 'C', 'V', 'macd', 'stochrsi', 'adx'])
+            columns=['Timestamp', 'O', 'H', 'L', 'C', 'V', 'macd', 'stochrsi', 'adx', 'signal'])
         self.cnec = sqlite3.connect(
             self.dbpath, timeout=15, check_same_thread=False)
         self.df.to_sql("BTCUSD", self.cnec, if_exists='replace')
@@ -43,6 +43,14 @@ class DB():
             new_df['C'], timeperiod=14, fastk_period=5, fastd_period=3, fastd_matype=0)
         new_df["adx"] = ta.ADX(new_df['H'], new_df['L'],
                                new_df['C'], timeperiod=14)
+
+        if new_df["stochrsi"] <= 31 and new_df["adx"] >= 25:
+            new_df["signal"] = 1
+        elif new_df["stochrsi"] >= 69 and new_df["adx"] <= 24:
+            new_df["signal"] = -1
+        else:
+            new_df["signal"] = 0
+
         new_df.to_sql('BTCUSD', self.cnec, if_exists='replace')
         self.closed()
 
