@@ -50,7 +50,6 @@ class DB():
             new_df["signal"] = -1
         else:
             new_df["signal"] = 0
-
         new_df.to_sql('BTCUSD', self.cnec, if_exists='replace')
         self.closed()
 
