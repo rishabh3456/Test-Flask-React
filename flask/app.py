@@ -17,7 +17,7 @@ def inf_loop():
     try:
         a.run()
     except:
-        return "error"
+        return "erro"
 
 
 if __name__ == "__main__":
