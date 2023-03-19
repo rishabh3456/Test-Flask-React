@@ -28,8 +28,10 @@ class DB():
     def add_db_entry(self, entries):
         self.connect()
         data = entries.get(True)
+        print("rrr")
         old_df = pd.read_sql(
             'SELECT Timestamp,O,H,L,C,V FROM BTCUSD', self.cnec)
+        print("hhhh")
         old_df.set_index('Timestamp', inplace=True)
         new_data = [str(data['t']), float(data['o']), float(
             data['h']), float(data['l']), float(data['c']), float(data['v'])]

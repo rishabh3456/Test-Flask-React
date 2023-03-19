@@ -21,7 +21,10 @@ def inf_loop():
 
 
 if __name__ == "__main__":
-    p = Process(target=inf_loop)
-    p.start()
-    app.run(debug=True)
-    p.join()
+    print(__name__)
+    p1 = Process(target=a.run())
+    p1.start()
+    p2 = Process(target=app.run(debug=True))
+    p2.start()
+    p1.join()
+    p2.join()
